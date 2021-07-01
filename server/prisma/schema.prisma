@@ -1,0 +1,71 @@
+datasource postgres {
+  provider = "postgresql"
+  url      = env("POSTGRESQL_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  firstName String?
+  lastName  String?
+  username  String   @unique
+  password  String
+  roles     String[]
+}
+
+model Customer {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  customerName String?
+  email        String?
+  phone        String?
+  address      Address?  @relation(fields: [addressId], references: [id])
+  addressId    String?
+  invoices     Invoice[]
+}
+
+model Address {
+  id             String          @id @default(cuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  address_1      String?
+  address_2      String?
+  city           String?
+  state          String?
+  zip            String?
+  customers      Customer[]
+  invoiceDetails InvoiceDetail[]
+}
+
+model Invoice {
+  totalAmount    Float?
+  id             String          @id @default(cuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  invoiceDate    DateTime?
+  discount       Float?
+  invoiceDetails InvoiceDetail[]
+  customer       Customer?       @relation(fields: [customerId], references: [id])
+  customerId     String?
+  invoiceNo      String?
+}
+
+model InvoiceDetail {
+  address     Address? @relation(fields: [addressId], references: [id])
+  addressId   String?
+  amount      Float?
+  createdAt   DateTime @default(now())
+  description String?
+  id          String   @id @default(cuid())
+  invoice     Invoice? @relation(fields: [invoiceId], references: [id])
+  invoiceId   String?
+  memo        String?
+  roomNo      String?
+  updatedAt   DateTime @updatedAt
+}
